@@ -1,10 +1,3 @@
-//
-//  main.cpp
-//  boj13015
-//
-//  Created by Mahyegyeong on 2020/12/18.
-//
-
 #include <iostream>
 using namespace std;
 void printStar(int n){
