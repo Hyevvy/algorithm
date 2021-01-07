@@ -16,16 +16,12 @@ int main(){
         binaryV.insert(binaryV.end(),currentBinary.begin(),currentBinary.end());
         currentBinary.clear();
     }
-   // cout<<binaryV.size()<<endl;
     int count =0;
     for(int i=0;i<binaryV.size() && count<5;i++){
         if(i%n + 1 == k) {
             cout<<binaryV[i]<<" ";
             count++;}
     }
-//    for(int i=0;i<binaryV.size();i++)
-//    cout<<binaryV[i];
-//    cout<<endl;
     return 0;
 }
 
