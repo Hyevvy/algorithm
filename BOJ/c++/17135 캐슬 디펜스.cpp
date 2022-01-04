@@ -1,125 +1,119 @@
 #include <iostream>
 #include <vector>
-#include <queue>
-#include <algorithm>
 #include <set>
 using namespace std;
-using p = pair<int, int>;
 int N, M, D;
-int arr2[16][16];
-int arr[16][16];
-vector<p> v;
-vector<p> coord;
-set<p> willremove;
-vector<int> dists;
-bool hasEnemy(int arr[16][16]) {
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < M; j++)
-            if (arr[i][j] == 1) return true;
-    }
-    return false;
-}
-int getDist(int cr, int cc, int nr, int nc) {
-    return abs(cr - nr) + abs(cc - nc);
-}
-bool isIn(int r, int c) {
-    return r >= 0 && r < N&& c >= 0 && c < M;
+int arr[20][20];
+int temp[20][20];
+//¹è¿­À» º¹»çÇÏ´Â ÇÔ¼ö
+void arrCpy() {
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= M; j++) {
+			temp[i][j] = arr[i][j];
+		}
+	}
 }
 
-void checkTemp(int temp[16][16]) {
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < M; j++)
-            cout << temp[i][j] << " ";
-        cout << "\n";
-    }
+bool hasEnemy(int t[20][20]) {
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= M; j++) {
+			if (t[i][j] == 1) return true;
+		}
+	}
+	return false;
 }
 
-int getPower(int temp[16][16]) {
-    int cnt = 0; // ì œê±°í•œ ì ì˜ ìˆ˜
-    while (1) {
-        willremove.clear();
-        if (hasEnemy(temp) == false) return cnt;
-        for (auto curr : v) {
-            int cr = curr.first, cc = curr.second;
-            int minDist = 1e9;
-            p removeCoor = { 0,0 };
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < M; j++) {
-                    if (temp[i][j] == 0) continue;
-                    if (getDist(cr, cc, i, j) <= D) {
-                        if (minDist > getDist(cr, cc, i, j)) {
-                            minDist = getDist(cr, cc, i, j);
-                            removeCoor = { i,j };
-                        }
-                        else if (minDist == getDist(cr, cc, i, j)) {
-                            if (removeCoor.second > j) {
-                                removeCoor = { i,j };
-                            }
-                        }
-                    }
-                }
-            }
-            if (!(removeCoor.first == 0 && removeCoor.second == 0)) {
-                willremove.insert(removeCoor);
-            }
-
-        }
-        for (auto a : willremove) {
-            temp[a.first][a.second] = 0;
-        }
-
-        //ê¶ìˆ˜ì˜ ê³µê²©ì´ ëë‚˜ë©´ ì ì€ í•œì¹¸ì”© ë‚´ë ¤ê°„ë‹¤.
-        for (int i = N - 2; i >= 0; i--) {
-            for (int j = 0; j < M; j++) {
-                temp[i + 1][j] = temp[i][j];
-                if (i == 0) {
-                    temp[i][j] = 0;
-                }
-            }
-        }
-
-        for (auto a : willremove) {
-            cnt++;
-        }
-    }//whileë¬¸ ë
-    return -1;
-}
-void getThree(int cnt, int pos) {
-    if (cnt == 3) {
-        int ans = getPower(arr);
-        dists.push_back(ans);
-
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++)
-                arr[i][j] = arr2[i][j];
-        }
-        return;
-    }
-    for (int j = pos; j < M; j++) {
-        v.push_back({ N, j });
-        getThree(cnt + 1, pos + 1);
-        v.pop_back();
-    }
+int getDist(int a, int b, int c, int d) {
+	return abs(a - c) + abs(b - d);
 }
 
+struct Dead {
+	int r, c;
+	Dead(int a, int b) {
+		r = a, c = b;
+	}
+};
+
+void move() {
+
+	for (int i = N - 1; i >= 1; i--) {
+		for (int j = 1; j <= M; j++) {
+			temp[i + 1][j] = temp[i][j];
+		}
+	}
+	for (int j = 1; j <= M; j++) {
+		temp[1][j] = 0;
+	}
+
+}
+int attack(int a, int b, int c) {
+
+	int archer[3] = { a,b,c };
+	int cnt = 0;//Á×ÀÎ ÀûÀÇ ¼ö
+
+	//1. temp¿¡ arrÀ» º¹»çÇÑ´Ù(¿øº» ¹è¿­ ¼Õ»óÀ» ¸·±â À§ÇÔ)
+	memset(temp, 0, sizeof(temp));
+	arrCpy();
+	vector<Dead> v;
+	while (1) {
+		if (hasEnemy(temp) == false) return cnt;
+
+		for (int k = 0; k < 3; k++) {
+			Dead dead = Dead(0, 0);
+			int minDist = 100000;
+
+			for (int i = 1; i <= N; i++) {
+				for (int j = 1; j <= M; j++) {
+					if (temp[i][j] == 1 && getDist(N + 1, archer[k], i, j) <= D) {
+						int d = getDist(N + 1, archer[k], i, j);
+						if (d < minDist) {
+							minDist = d;
+							dead = { i, j };
+						}
+						else if (d == minDist) {
+							if (dead.c > j) {
+								dead = { i, j };
+							}
+						}
+					}
+				}
+			}
+			v.push_back(dead);
+		}
+
+
+		for (auto curr : v) {
+			if (temp[curr.r][curr.c] != 0) {
+				cnt++;
+				temp[curr.r][curr.c] = 0;
+			}
+		}
+
+		v.clear();
+		move();
+	}
+}
 int main() {
-    cin >> N >> M >> D;
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < M; j++) {
-            cin >> arr[i][j];
-        }
-    }
+	cin >> N >> M >> D;
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= M; j++) {
+			cin >> arr[i][j];
+		}
+	}
 
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < M; j++) {
-            arr2[i][j] = arr[i][j];
-        }
-    }
+	int killedEnemy = 0;
+	//1. ±Ã¼öÀÇ À§Ä¡ 3°³¸¦ Á¶ÇÕÀ¸·Î ±¸ÇÑ´Ù.
+	for (int i = 1; i <= M; i++) {
+		for (int j = i + 1; j <= M; j++) {
+			for (int k = j + 1; k <= M; k++) {
+				int ret = attack(i, j, k);
+				if (killedEnemy < ret) {
+					killedEnemy = ret;
+				}
+			}
+		}
+	}
+	cout << killedEnemy;
 
-    getThree(0, 0);
-
-    sort(dists.begin(), dists.end());
-    cout << dists[dists.size() - 1] << "\n";
-
-    return 0;
+	return 0;
 }
