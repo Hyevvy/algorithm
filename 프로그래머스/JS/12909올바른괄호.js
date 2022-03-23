@@ -15,3 +15,26 @@ function solution(s){
     }
     return answer;
 }
+
+
+
+_____________________________________
+
+ stack 사용 
+ 
+ function solution(s){
+    var answer = true;
+    if(s[0]!=='(' || s[s.length-1]!==')') return false;
+    let stack = [];
+    for(let i=0; i<s.length; i++){
+        if(s[i]==='(') {
+            stack.push('(');
+        }
+        else if(s[i]===')'){
+            if(stack.length==0) return false;
+            stack.pop();
+        }
+    }
+    if(stack.length!=0) return false;
+    return answer;
+}
